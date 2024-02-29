@@ -29,9 +29,8 @@ const initialState: CompilerSliceStateType = {
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 50vh;
+      height: 100vh;
       margin: 0;
-    border:1px solid blue;
   }
   
   .container {
@@ -81,7 +80,14 @@ const compilerSlice = createSlice({
     updateCodeValue: (state, action: PayloadAction<string>) => {
       state.fullCode[state.currentLanguage] = action.payload;
     },
+    updateFullCode: (
+      state,
+      action: PayloadAction<CompilerSliceStateType["fullCode"]>
+    ) => {
+      state.fullCode = action.payload;
+    },
   },
 });
 export default compilerSlice.reducer;
-export const { updateCurrentLanguage, updateCodeValue } = compilerSlice.actions;
+export const { updateCurrentLanguage, updateCodeValue, updateFullCode } =
+  compilerSlice.actions;

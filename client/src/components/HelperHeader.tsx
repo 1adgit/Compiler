@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { Copy, Share2 } from "lucide-react";
+import { Code2, Copy, Loader2, Save, Share2 } from "lucide-react";
 import axios from "axios";
 import {
   Select,
@@ -16,17 +16,42 @@ import {
 } from "@/redux/slices/compilerSlice";
 import { RootState } from "@/redux/store";
 import { handleError } from "@/utils/handleError";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import { toast } from "sonner";
 const HelperHeader = () => {
+  const [saveLoading, setSaveLoading] = useState<boolean>(false);
+  const [shareBtn, setShareBtn] = useState<boolean>(false);
+  const navigate = useNavigate();
   const fullCode = useSelector(
     (state: RootState) => state.compilerSlice.fullCode
   );
+  const { urlId } = useParams();
+  useEffect(() => {
+    if (urlId) {
+      setShareBtn(true);
+    } else setShareBtn(false);
+  });
   const handleSaveCode = async () => {
+    setSaveLoading(true);
     try {
       const response = await axios.post("http://localhost:4000/compiler/save", {
         fullCode: fullCode,
       });
       console.log(response.data);
-    } catch (error) {}
+      navigate(`/compiler/${response.data.url}`, { replace: true });
+    } catch (error) {
+      handleError;
+    } finally {
+      setSaveLoading(false);
+    }
   };
   const dispatch = useDispatch();
   const currentLanguage = useSelector(
@@ -36,20 +61,68 @@ const HelperHeader = () => {
     <div className="_helper_header h-[50px] bg-black text-white p-2 flex justify-between items-center">
       <div className="_btn_container flex gap-1">
         <Button
+          onClick={handleSaveCode}
           className="flex justify-center items-center gap-1"
           variant="success"
-          onClick={handleSaveCode}
+          disabled={saveLoading}
         >
-          <Copy size={16} />
-          Save
+          {saveLoading ? (
+            <>
+              <Loader2 size={16} className="animate-spin" />
+              Saving
+            </>
+          ) : (
+            <>
+              <Save size={16} />
+              Save
+            </>
+          )}
         </Button>
-        <Button
-          className="flex justify-center items-center gap-1"
-          variant="secondary"
-        >
-          <Share2 size={16} />
-          Share
-        </Button>
+        {shareBtn && (
+          <Dialog>
+            <DialogTrigger>
+              <Button
+                className="flex justify-center items-center gap-1"
+                variant="secondary"
+              >
+                <Share2 size={16} />
+                Share
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex gap-1 justify-center items-center">
+                  <Code2 size={24} />
+                  Share your code
+                </DialogTitle>
+                <DialogDescription className="flex flex-col gap-2">
+                  <div className="__url flex gap-1">
+                    <input
+                      type="text"
+                      disabled
+                      className="w-full px-2 py-2 rounded bg-slate-800 text-slate-400"
+                      value={window.location.href}
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        window.navigator.clipboard.writeText(
+                          window.location.href
+                        );
+                        toast("URL copied to your cilpboard");
+                      }}
+                    >
+                      <Copy size={14} />
+                    </Button>
+                  </div>
+                  <p className="text-center">
+                    Share this url with your friends to collaborate
+                  </p>
+                </DialogDescription>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
       <div className="_tab_switcher flex justify-center items-center gap-1">
         <small>Current Language</small>

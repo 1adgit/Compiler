@@ -7,24 +7,27 @@ import {
   langNames,
   langs,
 } from "@uiw/codemirror-extensions-langs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
+import { updateCodeValue } from "@/redux/slices/compilerSlice";
 
 const CodeEditor: React.FC = () => {
   const currentLanguage = useSelector(
     (state: RootState) => state.compilerSlice.currentLanguage
   );
-  const [value, setValue] = useState("console.log('hello world!')");
-
-  const onChange = useCallback((val: any) => {
-    console.log("val:", val);
-    setValue(val);
+  const fullCode = useSelector(
+    (state: RootState) => state.compilerSlice.fullCode
+  );
+  const dispatch = useDispatch();
+  const onChange = useCallback((val: string) => {
+    // console.log("val:", val);
+    dispatch(updateCodeValue(val));
   }, []);
 
   return (
     <CodeMirror
-      value={value}
-      height="100vh"
+      value={fullCode[currentLanguage]}
+      height="calc(100vh - 60px - 50px)"
       extensions={[loadLanguage(currentLanguage)!]}
       onChange={onChange}
       theme={draculaInit({

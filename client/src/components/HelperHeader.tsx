@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Copy, Share2 } from "lucide-react";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -14,8 +15,19 @@ import {
   updateCurrentLanguage,
 } from "@/redux/slices/compilerSlice";
 import { RootState } from "@/redux/store";
-
+import { handleError } from "@/utils/handleError";
 const HelperHeader = () => {
+  const fullCode = useSelector(
+    (state: RootState) => state.compilerSlice.fullCode
+  );
+  const handleSaveCode = async () => {
+    try {
+      const response = await axios.post("http://localhost:4000/compiler/save", {
+        fullCode: fullCode,
+      });
+      console.log(response.data);
+    } catch (error) {}
+  };
   const dispatch = useDispatch();
   const currentLanguage = useSelector(
     (state: RootState) => state.compilerSlice.currentLanguage
@@ -26,6 +38,7 @@ const HelperHeader = () => {
         <Button
           className="flex justify-center items-center gap-1"
           variant="success"
+          onClick={handleSaveCode}
         >
           <Copy size={16} />
           Save

@@ -1,8 +1,11 @@
 import { Request, Response } from "express";
 import { Code } from "../models/Code";
-
+import { fullCodeType } from "../types/compilerTypes";
 export const saveCode = async (req: Request, res: Response) => {
-  const { fullCode } = req.body;
+  const fullCode: fullCodeType = req.body;
+  if (!fullCode.html && !fullCode.css && !fullCode.javascript) {
+    return res.status(400).send({ message: "code can not be blank" });
+  }
   try {
     const newCode = await Code.create({
       fullCode: fullCode,

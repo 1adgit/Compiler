@@ -32,7 +32,7 @@ const UserSchema = new mongoose.Schema<IUserSchema>(
       default:
         "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.vecteezy.com%2Ffree-vector%2Fdefault-user&psig=AOvVaw2Z2ZYY7enb9TlllBjyTyM4&ust=1709360677740000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCMjoj8q30oQDFQAAAAAdAAAAABAE",
     },
-    savedCodes: [{ type: mongoose.Schema.Types.ObjectId }],
+    savedCodes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Code" }],
   },
   { timestamps: true }
 );
